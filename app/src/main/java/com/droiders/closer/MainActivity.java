@@ -1,6 +1,7 @@
 package com.droiders.closer;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -15,11 +16,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.droiders.closer.Users.UserInfo;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.UserAuthenticationCallback;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
@@ -31,11 +44,10 @@ import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.squareup.okhttp.OkHttpClient;
 
+import org.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
-
-
-//import com.facebook.FacebookSdk;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,34 +57,20 @@ public class MainActivity extends AppCompatActivity
      */
     private MobileServiceClient mClient;
 
-    /**
-     * Mobile Service Table used to access data
-     */
-  //  private MobileServiceTable<ToDoItem> mToDoTable;
+    /*//UserInfo object person stores details of logged in user
+    UserInfo userInfo;
 
-    //Offline Sync
-    /**
-     * Mobile Service Table used to access and Sync data
-     */
-    //private MobileServiceSyncTable<ToDoItem> mToDoTable;
+    //Button to login in
+    private LoginButton loginButton;
 
-    /**
-     * Adapter to sync the items list with the view
-     */
-    //private ToDoItemAdapter mAdapter;
-
-    /**
-     * EditText containing the "New To Do" text
-     */
-    private EditText mTextNewToDo;
-
-    /**
-     * Progress spinner to use for table operations
-     */
-    private ProgressBar mProgressBar;
-
+    //Callback for fb
+    CallbackManager callbackManager;
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //Usual Stuff
+        //*******************************************************************
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -95,35 +93,98 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        //*******************************************************************
 
-        try {
-            // Create the Mobile Service Client instance, using the provided
+        /*//Log in
+        //============================================================
+        callbackManager = CallbackManager.Factory.create();
 
-            // Mobile Service URL and key
-            mClient = new MobileServiceClient(
-                    "https://droidersapp.azurewebsites.net",
-                    this).withFilter(new ProgressFilter());
+        loginButton = (LoginButton) findViewById(R.id.login_button);
+        //Read permissions-fb profile
+        loginButton.setReadPermissions("public_profile","user_friends","email");
+        //Callback method
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
 
-            // Extend timeout from default of 10s to 20s
-            mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
-                @Override
-                public OkHttpClient createOkHttpClient() {
-                    OkHttpClient client = new OkHttpClient();
-                    client.setReadTimeout(20, TimeUnit.SECONDS);
-                    client.setWriteTimeout(20, TimeUnit.SECONDS);
-                    return client;
-                }
-            });
+                //Request to get profile info
+                GraphRequest request = GraphRequest.newMeRequest(
+                        loginResult.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
+                            @Override
+                            public void onCompleted(
+                                    JSONObject object,
+                                    GraphResponse response) {
+                                // Application code
+                                Gson gson = new GsonBuilder().create();
+                                userInfo= gson.fromJson(object.toString(),UserInfo.class);
+                                createAndShowDialog(userInfo.getEmail(),"Title");
+                            }
+                        });
+                Bundle parameters = new Bundle();
+                //field values
+                parameters.putString("fields", "id,name,cover,link,gender,picture{url},verified,friends,email");
+                request.setParameters(parameters);
+                request.executeAsync();
+                Toast.makeText(MainActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
+            }
 
-            //Init local storage
-            //initLocalStore().get();
-            authenticate();
-        } catch (MalformedURLException e) {
-            createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
-        } catch (Exception e){
-            createAndShowDialog(e, "Error");
+            @Override
+            public void onCancel() {
+                Toast.makeText(MainActivity.this,"CANCEL",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Toast.makeText(MainActivity.this,"ERROR",Toast.LENGTH_LONG).show();
+            }
+        });
+        //============================================================*/
+
+        if(isLoggedIn()){
+            //************************************************************
+            try {
+                // Create the Mobile Service Client instance, using the provided
+                // Mobile Service URL and key
+                mClient = new MobileServiceClient(
+                        "https://droidersapp.azurewebsites.net",
+                        this);
+
+                // Extend timeout from default of 10s to 20s
+                mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
+                    @Override
+                    public OkHttpClient createOkHttpClient() {
+                        OkHttpClient client = new OkHttpClient();
+                        client.setReadTimeout(20, TimeUnit.SECONDS);
+                        client.setWriteTimeout(20, TimeUnit.SECONDS);
+                        return client;
+                    }
+                });
+
+                //Authenticate User and Sign in via fb
+                authenticate();
+            } catch (MalformedURLException e) {
+                createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
+            } catch (Exception e){
+                createAndShowDialog(e, "Error");
+            }
+            //************************************************************
         }
+        else {
+            Intent i=new Intent(this,LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+
+
     }
+
+    /*@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }*/
 
     private void createTable(){
         // Get the Mobile Service Table instance to use
@@ -143,20 +204,11 @@ public class MainActivity extends AppCompatActivity
         // Load the items from the Mobile Service
     //    refreshItemsFromTable();
     }
+
+
     private void authenticate(){
-        mClient.login(MobileServiceAuthenticationProvider.Facebook, new UserAuthenticationCallback() {
-            @Override
-            public void onCompleted(MobileServiceUser user, Exception exception, ServiceFilterResponse response) {
-                if(exception==null){
-                    //all good
-                    createAndShowDialog(String.format("Signed in as %s",user.getUserId()),"Signed in");
-                    createTable();
-                }else {
-                    //error
-                    createAndShowDialog("Please sign in","Error");
-                }
-            }
-        });
+        if(AccessToken.getCurrentAccessToken()!=null)
+            mClient.login(MobileServiceAuthenticationProvider.Facebook, AccessToken.getCurrentAccessToken().getToken());
     }
     @Override
     public void onBackPressed() {
@@ -214,82 +266,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    private class ProgressFilter implements ServiceFilter {
 
-        @Override
-        public ListenableFuture<ServiceFilterResponse> handleRequest(ServiceFilterRequest request, NextServiceFilterCallback nextServiceFilterCallback) {
-
-            final SettableFuture<ServiceFilterResponse> resultFuture = SettableFuture.create();
-
-
-            runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (mProgressBar != null) mProgressBar.setVisibility(ProgressBar.VISIBLE);
-                }
-            });
-
-            ListenableFuture<ServiceFilterResponse> future = nextServiceFilterCallback.onNext(request);
-
-            Futures.addCallback(future, new FutureCallback<ServiceFilterResponse>() {
-                @Override
-                public void onFailure(Throwable e) {
-                    resultFuture.setException(e);
-                }
-
-                @Override
-                public void onSuccess(ServiceFilterResponse response) {
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            if (mProgressBar != null) mProgressBar.setVisibility(ProgressBar.GONE);
-                        }
-                    });
-
-                    resultFuture.set(response);
-                }
-            });
-
-            return resultFuture;
-        }
-    }
-    /*private AsyncTask<Void, Void, Void> initLocalStore() throws MobileServiceLocalStoreException, ExecutionException, InterruptedException {
-
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-
-                    MobileServiceSyncContext syncContext = mClient.getSyncContext();
-
-                    if (syncContext.isInitialized())
-                        return null;
-
-                    SQLiteLocalStore localStore = new SQLiteLocalStore(mClient.getContext(), "OfflineStore", null, 1);
-
-                    Map<String, ColumnDataType> tableDefinition = new HashMap<String, ColumnDataType>();
-                    tableDefinition.put("id", ColumnDataType.String);
-                    tableDefinition.put("text", ColumnDataType.String);
-                    tableDefinition.put("complete", ColumnDataType.Boolean);
-
-                    localStore.defineTable("ToDoItem", tableDefinition);
-
-                    SimpleSyncHandler handler = new SimpleSyncHandler();
-
-                    syncContext.initialize(localStore, handler).get();
-
-                } catch (final Exception e) {
-                    createAndShowDialogFromTask(e, "Error");
-                }
-
-                return null;
-            }
-        };
-
-        return runAsyncTask(task);
-    }*/
     private void createAndShowDialogFromTask(final Exception exception, String title) {
         runOnUiThread(new Runnable() {
             @Override
@@ -298,6 +275,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+
     private void createAndShowDialog(Exception exception, String title) {
         Throwable ex = exception;
         if(exception.getCause() != null){
@@ -305,6 +284,8 @@ public class MainActivity extends AppCompatActivity
         }
         createAndShowDialog(ex.getMessage(), title);
     }
+
+    //Create and Show dialog box
     private void createAndShowDialog(final String message, final String title) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -312,40 +293,11 @@ public class MainActivity extends AppCompatActivity
         builder.setTitle(title);
         builder.create().show();
     }
-    /*private void refreshItemsFromTable() {
 
-        // Get the items that weren't marked as completed and add them in the
-        // adapter
-
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-            @Override
-            protected Void doInBackground(Void... params) {
-
-                try {
-                    final List<ToDoItem> results = refreshItemsFromMobileServiceTable();
-
-                    //Offline Sync
-                    //final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.clear();
-
-                            for (ToDoItem item : results) {
-                                mAdapter.add(item);
-                            }
-                        }
-                    });
-                } catch (final Exception e){
-                    createAndShowDialogFromTask(e, "Error");
-                }
-
-                return null;
-            }
-        };
-
-        runAsyncTask(task);
-    }*/
+    //Returns true if Logged in
+    private boolean isLoggedIn() {
+        AccessToken accesstoken = AccessToken.getCurrentAccessToken();
+        return !(accesstoken == null || accesstoken.getPermissions().isEmpty());
+    }
 
 }

@@ -6,4 +6,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="facebook_app_id">382676478762253</string>
+    <string name="title_activity_edit_profile">EditProfileActivity</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_create_community">CreateCommunityActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
 </resources>

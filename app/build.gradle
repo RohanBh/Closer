@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'android'
+            keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file('C:/Users/Naveen/.android/debug.keystore')
+            storeFile file('C:/Android/.android/debug.keystore')
             storePassword 'android'
         }
     }
@@ -30,6 +30,10 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -39,6 +43,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.1.1'
     compile 'com.android.support:design:25.1.1'
     compile 'com.microsoft.azure:azure-mobile-android:3.1.0'
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.facebook.android:facebook-android-sdk:4.19.0'
+    compile 'com.google.code.gson:gson:2.8.0'
     testCompile 'junit:junit:4.12'
 }
