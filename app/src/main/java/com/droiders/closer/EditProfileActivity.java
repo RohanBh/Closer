@@ -16,14 +16,10 @@ import android.widget.Spinner;
 
 import com.squareup.picasso.Picasso;
 
-import static com.droiders.closer.R.id.homeAddress;
-import static com.droiders.closer.R.id.homeEmail;
-import static com.droiders.closer.R.id.workAddress;
-
 
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
-    String  imageUrl,mGender,mName ,homeContact , workContact , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup;
+    String  mId,imageUrl,mGender,mName ,homeContact , workContact , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup;
 
 
 
@@ -31,24 +27,27 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
 
         ImageView profileImageView = (ImageView) findViewById(R.id.profilePicture);
 
         Intent intent = getIntent();
+        mId=intent.getStringExtra("id");
         mName = intent.getStringExtra("Name");
         homeEmail = intent.getStringExtra("Email");
         mGender = intent.getStringExtra("Gender");
         faceBookUrl = intent.getStringExtra("FbUrl");
         imageUrl = intent.getStringExtra("PictureUrl");
-        Picasso.with(this).load(imageUrl).resize(50,50).centerCrop().into(profileImageView);
+        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
+        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(profileImageView);
         collapsingToolbarLayout.setTitle(mName);
 
         setEditProfile();
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         mBloodGroupSpinner = (Spinner) findViewById(R.id.bloodGroup);
 
         setupSpinner();

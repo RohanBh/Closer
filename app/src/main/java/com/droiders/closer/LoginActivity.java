@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Gson gson = new GsonBuilder().create();
                                 userInfo= gson.fromJson(object.toString(),UserInfo.class);
                                 Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
+                                i.putExtra("id",userInfo.getId());
                                 i.putExtra("Name",userInfo.getName());
                                 i.putExtra("Email",userInfo.getEmail());
                                 i.putExtra("Gender",userInfo.getGender());

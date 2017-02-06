@@ -28,9 +28,9 @@
             android:name=".EditProfileActivity"
             android:label="@string/title_activity_edit_profile"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".ProfileActivity">
         <meta-data android:name="android.support.PARENT_ACTIVITY"
-        android:value=".MainActivity" />
+        android:value=".ProfileActivity" />
         </activity>
         <activity
             android:name=".ProfileActivity"
