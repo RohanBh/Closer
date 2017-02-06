@@ -248,17 +248,19 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.viewAccount) {
+            gotoActivity(ProfileActivity.class);
+        } else if (id == R.id.viewCommunities) {
+            gotoActivity(CommunityInfoDisplayActivity.class);
+        } else if (id == R.id.createCommunity) {
+            gotoActivity(CreateCommunityActivity.class);
+        } else if (id == R.id.feedback) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.findPeople) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.share) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.signOut ) {
 
         }
 
@@ -298,6 +300,11 @@ public class MainActivity extends AppCompatActivity
     private boolean isLoggedIn() {
         AccessToken accesstoken = AccessToken.getCurrentAccessToken();
         return !(accesstoken == null || accesstoken.getPermissions().isEmpty());
+    }
+
+    private void gotoActivity(Class cls){
+        Intent i=new Intent(MainActivity.this,cls);
+        startActivity(i);
     }
 
 }

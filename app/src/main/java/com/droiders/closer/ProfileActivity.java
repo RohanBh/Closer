@@ -16,8 +16,9 @@ public class ProfileActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Button displayCommunityInfoButton = (Button) findViewById(R.id.displayCommunity);
         displayCommunityInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +58,7 @@ public class ProfileActivity extends AppCompatActivity{
 
                 Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

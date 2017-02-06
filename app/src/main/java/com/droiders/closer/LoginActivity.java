@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                                 i.putExtra("PictureUrl",userInfo.getPicture().getData().getUrl());
 
                                 startActivity(i);
+                                finish();
                             }
                         });
                 Bundle parameters = new Bundle();
@@ -91,7 +92,6 @@ public class LoginActivity extends AppCompatActivity {
                 request.setParameters(parameters);
                 request.executeAsync();
                 Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
-
 
             }
 
