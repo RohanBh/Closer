@@ -1,7 +1,11 @@
 package com.droiders.closer;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,12 +14,27 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.droiders.closer.Users.users;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.Picasso;
+
+import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
+
 
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
-    String homeContact , workContact , homeEmail , workEmail , homeAddress , workAddress , mBloodGroup;
+    String  mId,imageUrl,mGender,mName ,homeContact  , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup,mProfession,mSkillSet;
 
+    private MobileServiceClient mClient;
+    private MobileServiceTable<users> mToDoTable;
 
 
     @Override
@@ -24,6 +43,44 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+
+        ImageView profileImageView = (ImageView) findViewById(R.id.profilePicture);
+
+        Intent intent = getIntent();
+        mId=intent.getStringExtra("id");
+        mName = intent.getStringExtra("Name");
+        homeEmail = intent.getStringExtra("Email");
+        mGender = intent.getStringExtra("Gender");
+        faceBookUrl = intent.getStringExtra("FbUrl");
+        imageUrl = intent.getStringExtra("PictureUrl");
+        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
+        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(profileImageView);
+        collapsingToolbarLayout.setTitle(mName);
+
+        setEditProfile();
+        try {
+            mClient = new MobileServiceClient(
+                    "https://droidersapp.azurewebsites.net",
+                    this);
+            mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
+                @Override
+                public OkHttpClient createOkHttpClient() {
+                    OkHttpClient client = new OkHttpClient();
+                    client.setReadTimeout(20, TimeUnit.SECONDS);
+                    client.setWriteTimeout(20, TimeUnit.SECONDS);
+                    return client;
+                }
+            });
+            createTable();
+        } catch (MalformedURLException e) {
+            createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
+        } catch (Exception e) {
+            createAndShowDialog(e, "Error");
+        }
+
         mBloodGroupSpinner = (Spinner) findViewById(R.id.bloodGroup);
 
         setupSpinner();
@@ -34,8 +91,20 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 updateProfile();
-
+                users userItem = new users(mId,mName,mGender,homeAddress,mBloodGroup,homeContact,workAddress,homeEmail,mProfession,mSkillSet,faceBookUrl);
+                pushToTable(userItem);
                 Intent intent = new Intent(EditProfileActivity.this,ProfileActivity.class);
+                intent.putExtra("id",mId);
+                intent.putExtra("name",mName);
+                intent.putExtra("email",homeEmail);
+                intent.putExtra("gender",mGender);
+                intent.putExtra("addr",homeAddress);
+                intent.putExtra("bloodgrp",mBloodGroup);
+                intent.putExtra("mob",homeContact);
+                intent.putExtra("dob",workAddress);
+                intent.putExtra("profession",mProfession);
+                intent.putExtra("skillset",mSkillSet);
+                intent.putExtra("fburl",faceBookUrl);
                 startActivity(intent);
 
 
@@ -101,19 +170,93 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void updateProfile(){
         EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
-        EditText workContactEditText = (EditText) findViewById(R.id.workContactNumber);
+        TextView genderEditText = (TextView) findViewById(R.id.genderEditText);
         EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
-        EditText workEmailEditText = (EditText) findViewById(R.id.workEmail);
+        TextView fbUrlEditText = (TextView) findViewById(R.id.fbUrl);
         EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
-        EditText workAddressEditText = (EditText) findViewById(R.id.workAddress);
-
+        EditText workAddressEditText = (EditText) findViewById(R.id.dateOfBirth);
+        EditText professionEditText = (EditText) findViewById(R.id.profession);
+        EditText skillSetEditText = (EditText) findViewById(R.id.skillSet);
 
 
         homeContact = homeContactEditText.getText().toString();
-        workContact = workContactEditText.getText().toString();
         homeEmail = homeEmailEditText.getText().toString();
-        workEmail = workEmailEditText.getText().toString();
         homeAddress = homeAddressEditText.getText().toString();
         workAddress = workAddressEditText.getText().toString();
+        mProfession = professionEditText.getText().toString();
+        mSkillSet = skillSetEditText.getText().toString();
+
+
+    }
+
+    private void setEditProfile(){
+        EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
+        TextView genderEditText = (TextView) findViewById(R.id.genderEditText);
+        EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
+        TextView fbUrlEditText = (TextView) findViewById(R.id.fbUrl);
+        EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
+        EditText workAddressEditText = (EditText) findViewById(R.id.dateOfBirth);
+
+        fbUrlEditText.setText(faceBookUrl);
+        homeEmailEditText.setText(homeEmail);
+        genderEditText.setText(mGender);
+
+
+    }
+    private void pushToTable(users usersItem){
+        createTable();
+        insertRow(usersItem);
+    }
+    private void createTable(){
+        // Get the Mobile Service Table instance to use
+        mToDoTable = mClient.getTable(users.class);
+    }
+    public void insertRow(users userItem){
+        final users item=userItem;
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    final users entity = mToDoTable.insert(item).get();
+                } catch (final Exception e) {
+                    createAndShowDialogFromTask(e, "Error");
+                }
+                return null;
+            }
+        };
+        runAsyncTask(task);
+    }
+    private void createAndShowDialogFromTask(final Exception exception, String title) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowDialog(exception, "Error");
+            }
+        });
+    }
+
+
+    private void createAndShowDialog(Exception exception, String title) {
+        Throwable ex = exception;
+        if(exception.getCause() != null){
+            ex = exception.getCause();
+        }
+        createAndShowDialog(ex.getMessage(), title);
+    }
+
+    //Create and Show dialog box
+    private void createAndShowDialog(final String message, final String title) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(message);
+        builder.setTitle(title);
+        builder.create().show();
+    }
+    private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            return task.execute();
+        }
     }
 }

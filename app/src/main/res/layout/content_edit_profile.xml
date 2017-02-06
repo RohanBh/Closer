@@ -62,17 +62,15 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:src="@drawable/ic_phone_black"
                 android:visibility="invisible" />
-
-            <EditText
-                android:id="@+id/workContactNumber"
+            <TextView
+                android:id="@+id/genderEditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_toEndOf="@id/ivContactItem2"
-                android:hint="Your Gender Here"
+                tools:text="Gender"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="#212121"
-                android:phoneNumber="true"/>
+                android:textColor="#212121"/>
 
 
 
@@ -132,8 +130,9 @@
                 android:src="@drawable/ic_email_black"
                 android:visibility="invisible" />
 
-            <EditText
-                android:id="@+id/workEmail"
+
+            <TextView
+                android:id="@+id/fbUrl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -141,7 +140,7 @@
                 android:layout_toStartOf="@+id/chkState4"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:hint="Your work email here"
+                tools:text="fbUrl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 
@@ -180,11 +179,6 @@
                 android:hint="Your home address here"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
-
-
-
-
-
         </RelativeLayout>
 
         <RelativeLayout
@@ -204,7 +198,7 @@
                 android:visibility="invisible" />
 
             <EditText
-                android:id="@+id/workAddress"
+                android:id="@+id/dateOfBirth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -212,7 +206,7 @@
                 android:layout_toStartOf="@+id/chkState6"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:hint="Your Work address"
+                android:hint="YYYY-MM-DD"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 
@@ -220,6 +214,63 @@
 
 
 
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <ImageView
+                android:id="@+id/ivProf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:src="@drawable/ic_location_on_black" />
+
+            <EditText
+                android:id="@+id/profession"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_toEndOf="@id/ivProf"
+                android:layout_toStartOf="@+id/chkState5"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:hint="Your profession here"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#212121" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <ImageView
+                android:id="@+id/ivss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:src="@drawable/ic_location_on_black" />
+
+            <EditText
+                android:id="@+id/skillSet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_toEndOf="@id/ivss"
+                android:layout_toStartOf="@+id/chkState5"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:hint="Your skills here"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#212121" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"

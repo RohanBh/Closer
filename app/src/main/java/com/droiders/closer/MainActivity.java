@@ -2,6 +2,8 @@ package com.droiders.closer;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -14,39 +16,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.droiders.closer.Users.UserInfo;
+import com.droiders.closer.Users.users;
 import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.UserAuthenticationCallback;
-import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
-import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
-import com.microsoft.windowsazure.mobileservices.http.NextServiceFilterCallback;
+import com.microsoft.windowsazure.mobileservices.MobileServiceException;
 import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.squareup.okhttp.OkHttpClient;
 
-import org.json.JSONObject;
-
 import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
@@ -56,21 +38,10 @@ public class MainActivity extends AppCompatActivity
      * Mobile Service Client reference
      */
     private MobileServiceClient mClient;
+    private MobileServiceTable<users> mToDoTable;
 
-    /*//UserInfo object person stores details of logged in user
-    UserInfo userInfo;
-
-    //Button to login in
-    private LoginButton loginButton;
-
-    //Callback for fb
-    CallbackManager callbackManager;
-*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //Usual Stuff
-        //*******************************************************************
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,56 +64,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //*******************************************************************
+        if(isLoggedIn()) {
 
-        /*//Log in
-        //============================================================
-        callbackManager = CallbackManager.Factory.create();
-
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-        //Read permissions-fb profile
-        loginButton.setReadPermissions("public_profile","user_friends","email");
-        //Callback method
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-                //Request to get profile info
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(
-                                    JSONObject object,
-                                    GraphResponse response) {
-                                // Application code
-                                Gson gson = new GsonBuilder().create();
-                                userInfo= gson.fromJson(object.toString(),UserInfo.class);
-                                createAndShowDialog(userInfo.getEmail(),"Title");
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                //field values
-                parameters.putString("fields", "id,name,cover,link,gender,picture{url},verified,friends,email");
-                request.setParameters(parameters);
-                request.executeAsync();
-                Toast.makeText(MainActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onCancel() {
-                Toast.makeText(MainActivity.this,"CANCEL",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Toast.makeText(MainActivity.this,"ERROR",Toast.LENGTH_LONG).show();
-            }
-        });
-        //============================================================*/
-
-        if(isLoggedIn()){
-            //************************************************************
             try {
                 // Create the Mobile Service Client instance, using the provided
                 // Mobile Service URL and key
@@ -160,56 +83,116 @@ public class MainActivity extends AppCompatActivity
                         return client;
                     }
                 });
+                createTable();
+                pullFromTable();
 
                 //Authenticate User and Sign in via fb
-                authenticate();
+                //authenticate();
             } catch (MalformedURLException e) {
                 createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
-            } catch (Exception e){
+            } catch (Exception e) {
                 createAndShowDialog(e, "Error");
             }
-            //************************************************************
-        }
-        else {
+        }else {
             Intent i=new Intent(this,LoginActivity.class);
             startActivity(i);
             finish();
         }
-
-
-
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+    /*public List<users> pullFromTable() throws MobileServiceException, ExecutionException, InterruptedException{
+        List<users> result;
+        AsyncTask<Void, Void, List<users>> task = new AsyncTask<Void, Void, List<users>>(){
+            @Override
+            protected List<users> doInBackground(Void... params) {
+                List<users> result=null;
+                try {
+                    result = mToDoTable.execute().get();
+                } catch (final Exception e) {
+                    createAndShowDialogFromTask(e, "Error");
+                }
+                return result;
+            }
+            @Override
+            protected void onPostExecute(List<users> list) {
+                super.onPostExecute(list);
+                String nn = "";
+                for (users item:list){
+                    nn+=item.getName()+"**";
+                }
+                Toast.makeText(MainActivity.this,nn,Toast.LENGTH_LONG).show();
+            }
+        };
+        result = task.execute().get();
+        return result;
     }*/
+String top="";
+    private void pullFromTable() {
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
 
+                try {
+                    final List<users> results = refreshItemsFromMobileServiceTable();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            for (users item : results) {
+                                top+=item.getName()+"**";
+                            }
+                            Toast.makeText(MainActivity.this,top,Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (final Exception e){
+                    createAndShowDialogFromTask(e, "Error");
+                }
+                return null;
+            }
+        };
+        runAsyncTask(task);
+    }
+    private List<users> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException, MobileServiceException {
+        return mToDoTable.execute().get();
+    }
+
+    private void pushToTable(users usersItem){
+        createTable();
+        insertRow(usersItem);
+    }
     private void createTable(){
         // Get the Mobile Service Table instance to use
-
-     //   mToDoTable = mClient.getTable(ToDoItem.class);
-
-        // Offline Sync
-        //mToDoTable = mClient.getSyncTable("ToDoItem", ToDoItem.class);
-
-     //   mTextNewToDo = (EditText) findViewById(R.id.textNewToDo);
-
-        // Create an adapter to bind the items with the view
-     //   mAdapter = new ToDoItemAdapter(this, R.layout.row_list_to_do);
-     //   ListView listViewToDo = (ListView) findViewById(R.id.listViewToDo);
-     //   listViewToDo.setAdapter(mAdapter);
-
-        // Load the items from the Mobile Service
-    //    refreshItemsFromTable();
+        mToDoTable = mClient.getTable(users.class);
+    }
+    public void insertRow(users userItem){
+        final users item=userItem;
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    final users entity = mToDoTable.insert(item).get();
+                } catch (final Exception e) {
+                    createAndShowDialogFromTask(e, "Error");
+                }
+                return null;
+            }
+        };
+        runAsyncTask(task);
     }
 
+    private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            return task.execute();
+        }
+    }
 
-    private void authenticate(){
+/*    private void authenticate(){
         if(AccessToken.getCurrentAccessToken()!=null)
             mClient.login(MobileServiceAuthenticationProvider.Facebook, AccessToken.getCurrentAccessToken().getToken());
-    }
+    }*/
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
