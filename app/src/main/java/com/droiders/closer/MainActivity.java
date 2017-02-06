@@ -14,37 +14,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.droiders.closer.Users.UserInfo;
 import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.UserAuthenticationCallback;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
-import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
-import com.microsoft.windowsazure.mobileservices.http.NextServiceFilterCallback;
 import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.squareup.okhttp.OkHttpClient;
-
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
