@@ -64,7 +64,7 @@
                 android:visibility="invisible" />
 
             <EditText
-                android:id="@+id/workContactNumber"
+                android:id="@+id/genderEditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -72,7 +72,7 @@
                 android:hint="Your Gender Here"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121"
-                android:phoneNumber="true"/>
+                />
 
 
 
@@ -133,7 +133,7 @@
                 android:visibility="invisible" />
 
             <EditText
-                android:id="@+id/workEmail"
+                android:id="@+id/fbUrl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -141,7 +141,7 @@
                 android:layout_toStartOf="@+id/chkState4"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:hint="Your work email here"
+                android:hint="Your fb url here"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 

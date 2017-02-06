@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file('C:/Android/.android/debug.keystore')
+            storeFile file('C:/Users/samagra/.android/debug.keystore')
             storePassword 'android'
         }
     }
@@ -45,5 +45,6 @@ dependencies {
     compile 'com.microsoft.azure:azure-mobile-android:3.1.0'
     compile 'com.facebook.android:facebook-android-sdk:4.19.0'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
 }

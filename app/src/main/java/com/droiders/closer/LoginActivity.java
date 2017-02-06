@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -73,6 +74,15 @@ public class LoginActivity extends AppCompatActivity {
                                 // Application code
                                 Gson gson = new GsonBuilder().create();
                                 userInfo= gson.fromJson(object.toString(),UserInfo.class);
+                                Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
+                                i.putExtra("Name",userInfo.getName());
+                                i.putExtra("Email",userInfo.getEmail());
+                                i.putExtra("Gender",userInfo.getGender());
+                                i.putExtra("FbUrl",userInfo.getLink());
+                                i.putExtra("UserId",userInfo.getId());
+                                i.putExtra("PictureUrl",userInfo.getPicture().getData().getUrl());
+
+                                startActivity(i);
                             }
                         });
                 Bundle parameters = new Bundle();
@@ -81,8 +91,8 @@ public class LoginActivity extends AppCompatActivity {
                 request.setParameters(parameters);
                 request.executeAsync();
                 Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
-                Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
-                startActivity(i);
+
+
             }
 
             @Override
@@ -93,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(FacebookException error) {
                 Toast.makeText(LoginActivity.this,"ERROR",Toast.LENGTH_LONG).show();
+                Log.e("ERROR",error.getMessage());
             }
         });
         //============================================================
