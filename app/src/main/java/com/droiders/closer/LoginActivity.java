@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
                 Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
                 startActivity(i);
+                finish();
             }
 
             @Override
