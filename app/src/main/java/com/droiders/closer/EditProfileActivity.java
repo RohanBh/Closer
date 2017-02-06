@@ -2,6 +2,7 @@ package com.droiders.closer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,11 +11,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+
+import com.squareup.picasso.Picasso;
+
 
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
-    String homeContact , workContact , homeEmail , workEmail , homeAddress , workAddress , mBloodGroup;
+    String  mId,imageUrl,mGender,mName ,homeContact , workContact , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup;
 
 
 
@@ -22,8 +27,27 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+
+        ImageView profileImageView = (ImageView) findViewById(R.id.profilePicture);
+
+        Intent intent = getIntent();
+        mId=intent.getStringExtra("id");
+        mName = intent.getStringExtra("Name");
+        homeEmail = intent.getStringExtra("Email");
+        mGender = intent.getStringExtra("Gender");
+        faceBookUrl = intent.getStringExtra("FbUrl");
+        imageUrl = intent.getStringExtra("PictureUrl");
+        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
+        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(profileImageView);
+        collapsingToolbarLayout.setTitle(mName);
+
+        setEditProfile();
+
+
         mBloodGroupSpinner = (Spinner) findViewById(R.id.bloodGroup);
 
         setupSpinner();
@@ -37,6 +61,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(EditProfileActivity.this,ProfileActivity.class);
                 startActivity(intent);
+                finish();
 
 
 
@@ -101,19 +126,33 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void updateProfile(){
         EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
-        EditText workContactEditText = (EditText) findViewById(R.id.workContactNumber);
+        EditText genderEditText = (EditText) findViewById(R.id.genderEditText);
         EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
-        EditText workEmailEditText = (EditText) findViewById(R.id.workEmail);
+        EditText fbUrlEditText = (EditText) findViewById(R.id.fbUrl);
         EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
         EditText workAddressEditText = (EditText) findViewById(R.id.workAddress);
 
 
 
         homeContact = homeContactEditText.getText().toString();
-        workContact = workContactEditText.getText().toString();
+        workContact = genderEditText.getText().toString();
         homeEmail = homeEmailEditText.getText().toString();
-        workEmail = workEmailEditText.getText().toString();
+        faceBookUrl = fbUrlEditText.getText().toString();
         homeAddress = homeAddressEditText.getText().toString();
         workAddress = workAddressEditText.getText().toString();
+    }
+    private void setEditProfile(){
+        EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
+        EditText genderEditText = (EditText) findViewById(R.id.genderEditText);
+        EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
+        EditText fbUrlEditText = (EditText) findViewById(R.id.fbUrl);
+        EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
+        EditText workAddressEditText = (EditText) findViewById(R.id.workAddress);
+
+        fbUrlEditText.setText(faceBookUrl);
+        homeEmailEditText.setText(homeEmail);
+        genderEditText.setText(mGender);
+
+
     }
 }

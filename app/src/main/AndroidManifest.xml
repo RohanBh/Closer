@@ -27,16 +27,31 @@
         <activity
             android:name=".EditProfileActivity"
             android:label="@string/title_activity_edit_profile"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".ProfileActivity">
+        <meta-data android:name="android.support.PARENT_ACTIVITY"
+        android:value=".ProfileActivity" />
+        </activity>
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"><meta-data android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity" />
+        </activity>
         <activity
             android:name=".CreateCommunityActivity"
             android:label="@string/title_activity_create_community"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CommunityInfoDisplayActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"><meta-data android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".CommunityInfoDisplayActivity"
+            android:label="@string/title_activity_community_info_display"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"><meta-data android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity" />
+        </activity>
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"

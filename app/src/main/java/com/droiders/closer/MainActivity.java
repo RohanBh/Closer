@@ -14,37 +14,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.droiders.closer.Users.UserInfo;
 import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.UserAuthenticationCallback;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
-import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
-import com.microsoft.windowsazure.mobileservices.http.NextServiceFilterCallback;
 import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.squareup.okhttp.OkHttpClient;
-
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
@@ -248,17 +223,19 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.viewAccount) {
+            gotoActivity(ProfileActivity.class);
+        } else if (id == R.id.viewCommunities) {
+            gotoActivity(CommunityInfoDisplayActivity.class);
+        } else if (id == R.id.createCommunity) {
+            gotoActivity(CreateCommunityActivity.class);
+        } else if (id == R.id.feedback) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.findPeople) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.share) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.signOut ) {
 
         }
 
@@ -298,6 +275,11 @@ public class MainActivity extends AppCompatActivity
     private boolean isLoggedIn() {
         AccessToken accesstoken = AccessToken.getCurrentAccessToken();
         return !(accesstoken == null || accesstoken.getPermissions().isEmpty());
+    }
+
+    private void gotoActivity(Class cls){
+        Intent i=new Intent(MainActivity.this,cls);
+        startActivity(i);
     }
 
 }
