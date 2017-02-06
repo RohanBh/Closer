@@ -11,4 +11,6 @@
     <string name="title_activity_create_community">CreateCommunityActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_community_info_display">CommunityInfoDisplayActivity</string>
+    <string name="title_activity_view_pager">ViewPagerActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>
