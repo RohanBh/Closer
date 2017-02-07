@@ -43,13 +43,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
     //UserInfo object person stores details of logged in user
-    UserInfo userInfo;
+    UserInfo userInfo=new UserInfo();
 
     private MobileServiceClient mClient;
     private MobileServiceTable<users> mToDoTable;
     private String mId;
     //Button to login in
     private LoginButton loginButton;
+    private DBHandler myDB;
 
     //Callback for fb
     CallbackManager callbackManager;
@@ -60,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        myDB=DBHandler.getInstance(this);
         setSupportActionBar(toolbar);
         try {
             mClient = new MobileServiceClient(
@@ -105,6 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Gson gson = new GsonBuilder().create();
                                 userInfo= gson.fromJson(object.toString(),UserInfo.class);
                                 mId=userInfo.getId();
+                                //pulls data and takes to espective activites
                                 pullFromTable(userInfo);
                             }
                         });
@@ -137,6 +140,8 @@ public class LoginActivity extends AppCompatActivity {
         // Get the Mobile Service Table instance to use
         mToDoTable = mClient.getTable(users.class);
     }
+
+
     private void pullFromTable(UserInfo userInfo) {
         final UserInfo temp = userInfo;
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
@@ -149,22 +154,25 @@ public class LoginActivity extends AppCompatActivity {
                         public void run() {
                             for (users item : results) {
                                 isUser=true;
+                                myDB.addme(new UserInfo(item.getId(),item.getName(),item.getFburl(),item.getSex(),
+                                        null,true,null,item.getEmail(),null));
                             }
                             if(isUser){
                                 Intent i =new Intent(LoginActivity.this,MainActivity.class);
+                                i.putExtra("dbID",mId);
                                 startActivity(i);
                                 finish();
                             }else{
-                            Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
-                            i.putExtra("id",temp.getId());
-                            i.putExtra("Name",temp.getName());
-                            i.putExtra("Email",temp.getEmail());
-                            i.putExtra("Gender",temp.getGender());
-                            i.putExtra("FbUrl",temp.getLink());
-                            i.putExtra("UserId",temp.getId());
-                            i.putExtra("PictureUrl",temp.getPicture().getData().getUrl());
-                            startActivity(i);
-                            finish();}
+                                Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
+                                i.putExtra("id",temp.getId());
+                                i.putExtra("Name",temp.getName());
+                                i.putExtra("Email",temp.getEmail());
+                                i.putExtra("Gender",temp.getGender());
+                                i.putExtra("FbUrl",temp.getLink());
+                                i.putExtra("UserId",temp.getId());
+                                i.putExtra("PictureUrl",temp.getPicture().getData().getUrl());
+                                startActivity(i);
+                                finish();}
                         }
                     });
                 } catch (final Exception e){
@@ -175,6 +183,8 @@ public class LoginActivity extends AppCompatActivity {
         };
         runAsyncTask(task);
     }
+
+
     private List<users> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException, MobileServiceException {
         return mToDoTable.where().field("id").eq(mId).execute().get();
     }
