@@ -54,11 +54,11 @@
         <activity
             android:name=".CommunityInfoDisplayActivity"
             android:label="@string/title_activity_community_info_display"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".CommunityListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".CommunityListActivity" />
         </activity>
         <activity
             android:name=".LoginActivity"
@@ -67,6 +67,15 @@
         <activity
             android:name=".ViewPagerActivity"
             android:label="@string/title_activity_view_pager"
+            android:parentActivityName=".CommunityInfoDisplayActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.droiders.closer.CommunityInfoDisplayActivity" />
+        </activity>
+        <activity
+            android:name=".CommunityListActivity"
+            android:label="@string/title_activity_community_list"
             android:parentActivityName=".CommunityInfoDisplayActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

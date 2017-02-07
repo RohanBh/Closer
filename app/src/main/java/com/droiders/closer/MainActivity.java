@@ -234,7 +234,7 @@ String top="";
         if (id == R.id.viewAccount) {
             gotoActivity(ProfileActivity.class);
         } else if (id == R.id.viewCommunities) {
-            gotoActivity(CommunityInfoDisplayActivity.class);
+            gotoActivity(CommunityListActivity.class);
         } else if (id == R.id.createCommunity) {
             gotoActivity(CreateCommunityActivity.class);
         } else if (id == R.id.feedback) {
