@@ -172,6 +172,16 @@ public class CommunityListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i=new Intent(getCtx(),CommunityInfoDisplayActivity.class);
+                int position = getAdapterPosition();
+                String bhawanName;
+                if (position==0)
+                    bhawanName = "Govind Bhawan";
+                else if (position==1)
+                    bhawanName = "Rajendra Bhawan";
+                else
+                bhawanName = "Rajiv Bhawan";
+
+                i.putExtra("CommunityName", bhawanName);
                 startActivity(i);
             }
         }

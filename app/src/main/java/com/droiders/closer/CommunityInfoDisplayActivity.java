@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import static com.droiders.closer.R.id.fab;
+
 public class CommunityInfoDisplayActivity extends AppCompatActivity {
 
     @Override
@@ -16,9 +18,13 @@ public class CommunityInfoDisplayActivity extends AppCompatActivity {
         setContentView(R.layout.community_info_page);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent i = getIntent();
+        String communityName = i.getStringExtra("CommunityName");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        mCollapsingToolbar.setTitle("Community Name");
+        mCollapsingToolbar.setTitle(communityName);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.goToNoticesFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
