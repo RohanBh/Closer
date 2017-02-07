@@ -29,6 +29,9 @@ import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
 
+import com.squareup.picasso.Picasso;
+
+
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
     String  mId,imageUrl,mGender,mName ,homeContact  , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup,mProfession,mSkillSet;
@@ -41,7 +44,7 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -106,6 +109,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 intent.putExtra("skillset",mSkillSet);
                 intent.putExtra("fburl",faceBookUrl);
                 startActivity(intent);
+                finish();
 
 
 

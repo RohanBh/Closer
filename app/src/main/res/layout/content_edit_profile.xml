@@ -5,8 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/activity_horizontal_margin"
-    android:padding="@dimen/activity_horizontal_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_edit_profile">
 
@@ -62,6 +60,7 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:src="@drawable/ic_phone_black"
                 android:visibility="invisible" />
+
             <TextView
                 android:id="@+id/genderEditText"
                 android:layout_width="wrap_content"
@@ -71,6 +70,7 @@
                 tools:text="Gender"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121"/>
+
 
 
 
@@ -129,7 +129,6 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:src="@drawable/ic_email_black"
                 android:visibility="invisible" />
-
 
             <TextView
                 android:id="@+id/fbUrl"
