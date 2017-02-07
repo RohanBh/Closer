@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
      */
     private MobileServiceClient mClient;
     private MobileServiceTable<users> mToDoTable;
+    private String mId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        mId=getIntent().getStringExtra("id");
+
+        Toast.makeText(this,mId,Toast.LENGTH_LONG).show();
         if(isLoggedIn()) {
 
             try {
@@ -90,11 +94,7 @@ public class MainActivity extends AppCompatActivity
                         return client;
                     }
                 });
-                //createTable();
-                //pullFromTable();
 
-                //Authenticate User and Sign in via fb
-                //authenticate();
             } catch (MalformedURLException e) {
                 createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
             } catch (Exception e) {
@@ -107,33 +107,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /*public List<users> pullFromTable() throws MobileServiceException, ExecutionException, InterruptedException{
-        List<users> result;
-        AsyncTask<Void, Void, List<users>> task = new AsyncTask<Void, Void, List<users>>(){
-            @Override
-            protected List<users> doInBackground(Void... params) {
-                List<users> result=null;
-                try {
-                    result = mToDoTable.execute().get();
-                } catch (final Exception e) {
-                    createAndShowDialogFromTask(e, "Error");
-                }
-                return result;
-            }
-            @Override
-            protected void onPostExecute(List<users> list) {
-                super.onPostExecute(list);
-                String nn = "";
-                for (users item:list){
-                    nn+=item.getName()+"**";
-                }
-                Toast.makeText(MainActivity.this,nn,Toast.LENGTH_LONG).show();
-            }
-        };
-        result = task.execute().get();
-        return result;
-    }*/
-String top="";
     private void pullFromTable() {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
@@ -146,9 +119,8 @@ String top="";
                         public void run() {
 
                             for (users item : results) {
-                                top+=item.getName()+"**";
+                                //top+=item.getName()+"**";
                             }
-                            Toast.makeText(MainActivity.this,top,Toast.LENGTH_LONG).show();
                         }
                     });
                 } catch (final Exception e){
@@ -260,7 +232,9 @@ String top="";
             request.setParameters(parameters);
             request.executeAsync();
         } else if (id == R.id.viewCommunities) {
-            gotoActivity(CommunityListActivity.class);
+            Intent i =new Intent(MainActivity.this,CommunityListActivity.class);
+            i.putExtra("id",mId);
+            startActivity(i);
         } else if (id == R.id.createCommunity) {
             gotoActivity(CreateCommunityActivity.class);
         } else if (id == R.id.feedback) {

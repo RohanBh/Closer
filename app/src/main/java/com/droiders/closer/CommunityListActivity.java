@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.droiders.closer.Users.communities;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -30,14 +31,15 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static com.droiders.closer.R.id.communityName;
+
 public class CommunityListActivity extends AppCompatActivity {
 
-    //0989800988-jkjlkkh*(%$#^&%*(
-    ArrayList<String> communityNames=new ArrayList<String>();//INITIALIZE STRING LIST
-    //9090977857667()()**^%$$%^#((
+    ArrayList<String> communityNames=new ArrayList<String>();
 
     private MobileServiceClient mClient;
     private MobileServiceTable<communities> mToDoTable;
+    private String mId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +57,7 @@ public class CommunityListActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
+        mId=getIntent().getStringExtra("id");
 
         try {
             mClient = new MobileServiceClient(
@@ -165,7 +166,7 @@ public class CommunityListActivity extends AppCompatActivity {
 
             public MyViewholder(View itemView) {
                 super(itemView);
-                tName= (TextView) itemView.findViewById(R.id.communityName);
+                tName= (TextView) itemView.findViewById(communityName);
                 itemView.setOnClickListener(this);
             }
 
@@ -174,13 +175,9 @@ public class CommunityListActivity extends AppCompatActivity {
                 Intent i=new Intent(getCtx(),CommunityInfoDisplayActivity.class);
                 int position = getAdapterPosition();
                 String bhawanName;
-                if (position==0)
-                    bhawanName = "Govind Bhawan";
-                else if (position==1)
-                    bhawanName = "Rajendra Bhawan";
-                else
-                bhawanName = "Rajiv Bhawan";
-
+                TextView communityName=(TextView) v.findViewById(R.id.communityName);
+                bhawanName=communityName.getText().toString();
+                i.putExtra("id",mId);
                 i.putExtra("CommunityName", bhawanName);
                 startActivity(i);
             }

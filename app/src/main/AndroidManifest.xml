@@ -82,6 +82,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.droiders.closer.CommunityInfoDisplayActivity" />
         </activity>
+        <activity android:name=".PostActivity"></activity>
     </application>
 
 </manifest>

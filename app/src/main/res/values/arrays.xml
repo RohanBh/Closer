@@ -10,4 +10,9 @@
         <item>O+</item>
         <item>O-</item>
     </string-array>
+    <string-array name="array_post_options">
+        <item>Post</item>
+        <item>Request someone</item>
+        <item>Share something</item>
+        </string-array>
 </resources>

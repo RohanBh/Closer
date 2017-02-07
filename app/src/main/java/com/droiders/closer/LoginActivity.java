@@ -152,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             if(isUser){
                                 Intent i =new Intent(LoginActivity.this,MainActivity.class);
+                                i.putExtra("id",mId);
                                 startActivity(i);
                                 finish();
                             }else{

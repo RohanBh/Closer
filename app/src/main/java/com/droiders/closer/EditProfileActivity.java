@@ -29,9 +29,6 @@ import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
 
-import com.squareup.picasso.Picasso;
-
-
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
     String  mId,imageUrl,mGender,mName ,homeContact  , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup,mProfession,mSkillSet;
@@ -238,8 +235,6 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
     }
-
-
     private void createAndShowDialog(Exception exception, String title) {
         Throwable ex = exception;
         if(exception.getCause() != null){
@@ -247,8 +242,6 @@ public class EditProfileActivity extends AppCompatActivity {
         }
         createAndShowDialog(ex.getMessage(), title);
     }
-
-    //Create and Show dialog box
     private void createAndShowDialog(final String message, final String title) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
