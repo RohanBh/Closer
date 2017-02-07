@@ -12,44 +12,48 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.droiders.closer.Users.UserInfo;
 import com.droiders.closer.Users.users;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
-import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
-import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.Picasso;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 
 public class ProfileActivity extends AppCompatActivity{
 private String mId;
-    private MobileServiceClient mClient;
+    //private MobileServiceClient mClient;
     private MobileServiceTable<users> mToDoTable;
-    private TextView contactTextView,gender,emailTextView,facebookAddressTextView,addressTextView,dateOfBirthTextView,professionTextView,skillTextView;
+    private TextView contactTextView,gender,emailTextView,
+            facebookAddressTextView,addressTextView,dateOfBirthTextView,
+            professionTextView,skillTextView;
+    ImageView picture;
+    DBHandler myDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-         contactTextView = (TextView) findViewById(R.id.contactTextView);
-         gender = (TextView) findViewById(R.id.gender);
-         emailTextView = (TextView) findViewById(R.id.emailTextView);
-         facebookAddressTextView = (TextView) findViewById(R.id.facebookAddressTextView);
-         addressTextView = (TextView) findViewById(R.id.addressTextView);
-         dateOfBirthTextView = (TextView) findViewById(R.id.dateOfBirthTextView);
-         professionTextView = (TextView) findViewById(R.id.professionTextView);
-         skillTextView = (TextView) findViewById(R.id.skillTextView);
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        myDB=DBHandler.getInstance(this);
+
+        contactTextView = (TextView) findViewById(R.id.contactTextView);
+        gender = (TextView) findViewById(R.id.gender);
+        emailTextView = (TextView) findViewById(R.id.emailTextView);
+        facebookAddressTextView = (TextView) findViewById(R.id.facebookAddressTextView);
+        addressTextView = (TextView) findViewById(R.id.addressTextView);
+        dateOfBirthTextView = (TextView) findViewById(R.id.dateOfBirthTextView);
+        professionTextView = (TextView) findViewById(R.id.professionTextView);
+        skillTextView = (TextView) findViewById(R.id.skillTextView);
+        picture= (ImageView) findViewById(R.id.my_pic);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Button displayCommunityInfoButton = (Button) findViewById(R.id.displayCommunity);
         displayCommunityInfoButton.setOnClickListener(new View.OnClickListener() {
@@ -59,7 +63,7 @@ private String mId;
                 startActivity(intent);
             }
         });
-        setupProfile();
+        //setupProfile();
 
         Button createCommunityButton = (Button) findViewById(R.id.createCommunity);
         createCommunityButton.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +73,7 @@ private String mId;
                 startActivity(intent);
             }
         });
-        try {
+        /*try {
             mClient = new MobileServiceClient(
                     "https://droidersapp.azurewebsites.net",
                     this);
@@ -87,9 +91,9 @@ private String mId;
             createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
         } catch (Exception e) {
             createAndShowDialog(e, "Error");
-        }
+        }*/
         mId=getIntent().getStringExtra("id");
-        pullFromTable();
+        pullFromLocalTable();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +118,7 @@ private String mId;
 
 
                 Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
+                intent.putExtra("id",mId);
                 startActivity(intent);
             }
         });
@@ -141,9 +146,22 @@ private String mId;
         return super.onOptionsItemSelected(item);
     }
 
-    String top="";
-    private void pullFromTable() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+    //String top="";
+    private void pullFromLocalTable() {
+
+        UserInfo me= myDB.getMe(mId);
+        contactTextView.setText(me.getMobile());
+        gender.setText(me.getGender());
+        emailTextView.setText(me.getEmail());
+        facebookAddressTextView.setText(me.getLink());
+        addressTextView.setText(me.getAddress());
+        dateOfBirthTextView.setText(me.getDob());
+        professionTextView.setText(me.getProfession());
+        skillTextView.setText(me.getSkillset());
+        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
+        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(picture);
+
+        /*AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
             protected Void doInBackground(Void... params) {
                 try {
@@ -172,15 +190,17 @@ private String mId;
                 return null;
             }
         };
-        runAsyncTask(task);
+        runAsyncTask(task);*/
     }
+
+
     private List<users> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException, MobileServiceException {
         return mToDoTable.where().field("id").eq(mId).execute().get();
     }
-    private void createTable(){
+    /*private void createTable(){
         // Get the Mobile Service Table instance to use
         mToDoTable = mClient.getTable(users.class);
-    }
+    }*/
     private void createAndShowDialogFromTask(final Exception exception, String title) {
         runOnUiThread(new Runnable() {
             @Override

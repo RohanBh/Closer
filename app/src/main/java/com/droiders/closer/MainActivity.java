@@ -46,7 +46,10 @@ public class MainActivity extends AppCompatActivity
      */
     private MobileServiceClient mClient;
     private MobileServiceTable<users> mToDoTable;
-    private String mId;
+
+    DBHandler myDB;
+    String currentUserID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        myDB=DBHandler.getInstance(this);
+        currentUserID=getIntent().getStringExtra("dbID");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -72,9 +77,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        mId=getIntent().getStringExtra("id");
+        currentUserID=getIntent().getStringExtra("id");
 
-        Toast.makeText(this,mId,Toast.LENGTH_LONG).show();
         if(isLoggedIn()) {
 
             try {
@@ -211,30 +215,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.viewAccount) {
-            GraphRequest request = GraphRequest.newMeRequest(
-                    AccessToken.getCurrentAccessToken(),
-                    new GraphRequest.GraphJSONObjectCallback() {
-                        @Override
-                        public void onCompleted(
-                                JSONObject object,
-                                GraphResponse response) {
-                            // Application code
-                            Gson gson = new GsonBuilder().create();
-                            UserInfo userInfo= gson.fromJson(object.toString(),UserInfo.class);
-                            Intent i = new Intent(MainActivity.this,ProfileActivity.class);
-                            i.putExtra("id", userInfo.getId());
-                            startActivity(i);
-                            }
-                    });
-            Bundle parameters = new Bundle();
-            //field values
-            parameters.putString("fields", "id");
-            request.setParameters(parameters);
-            request.executeAsync();
+            gotoActivity(ProfileActivity.class);
         } else if (id == R.id.viewCommunities) {
-            Intent i =new Intent(MainActivity.this,CommunityListActivity.class);
-            i.putExtra("id",mId);
-            startActivity(i);
+            gotoActivity(CommunityListActivity.class);
         } else if (id == R.id.createCommunity) {
             gotoActivity(CreateCommunityActivity.class);
         } else if (id == R.id.feedback) {
@@ -285,9 +268,34 @@ public class MainActivity extends AppCompatActivity
         return !(accesstoken == null || accesstoken.getPermissions().isEmpty());
     }
 
-    private void gotoActivity(Class cls){
-        Intent i=new Intent(MainActivity.this,cls);
-        startActivity(i);
+    private void gotoActivity(final Class cls){
+        if(currentUserID==null){
+            GraphRequest request = GraphRequest.newMeRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(
+                                JSONObject object,
+                                GraphResponse response) {
+                            // Application code
+                            Gson gson = new GsonBuilder().create();
+                            UserInfo me= new UserInfo();
+                            me= gson.fromJson(object.toString(),UserInfo.class);
+                            currentUserID=me.getId();
+                            Intent i=new Intent(MainActivity.this,cls);
+                            i.putExtra("id", currentUserID);
+                            startActivity(i);
+                        }
+                    });
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "id");
+            request.setParameters(parameters);
+            request.executeAsync();
+        }else {
+            Intent i=new Intent(MainActivity.this,cls);
+            i.putExtra("id", currentUserID);
+            startActivity(i);
+        }
     }
 
 }

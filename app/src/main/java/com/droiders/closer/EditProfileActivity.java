@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.droiders.closer.Users.UserInfo;
 import com.droiders.closer.Users.users;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
@@ -35,7 +37,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private MobileServiceClient mClient;
     private MobileServiceTable<users> mToDoTable;
-
+    DBHandler myDB;
+    EditText homeContactEditText,homeEmailEditText,homeAddressEditText,
+            workAddressEditText,professionEditText,skillSetEditText;
+    TextView genderEditText,fbUrlEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +49,6 @@ public class EditProfileActivity extends AppCompatActivity {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-
-        ImageView profileImageView = (ImageView) findViewById(R.id.profilePicture);
-
-        Intent intent = getIntent();
-        mId=intent.getStringExtra("id");
-        mName = intent.getStringExtra("Name");
-        homeEmail = intent.getStringExtra("Email");
-        mGender = intent.getStringExtra("Gender");
-        faceBookUrl = intent.getStringExtra("FbUrl");
-        imageUrl = intent.getStringExtra("PictureUrl");
-        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
-        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(profileImageView);
-        collapsingToolbarLayout.setTitle(mName);
-
-        setEditProfile();
         try {
             mClient = new MobileServiceClient(
                     "https://droidersapp.azurewebsites.net",
@@ -81,6 +69,51 @@ public class EditProfileActivity extends AppCompatActivity {
             createAndShowDialog(e, "Error");
         }
 
+        myDB= DBHandler.getInstance(this);
+
+        //***********************************
+        homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
+        homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
+        homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
+        workAddressEditText = (EditText) findViewById(R.id.dateOfBirth);
+        professionEditText = (EditText) findViewById(R.id.profession);
+        skillSetEditText = (EditText) findViewById(R.id.skillSet);
+        genderEditText = (TextView) findViewById(R.id.genderEditText);
+        fbUrlEditText = (TextView) findViewById(R.id.fbUrl);
+        //***********************************
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+
+        ImageView profileImageView = (ImageView) findViewById(R.id.profilePicture);
+
+        Intent intent = getIntent();
+        mId= intent.getStringExtra("id");
+        mName = intent.getStringExtra("Name");
+        homeEmail = intent.getStringExtra("Email");
+        mGender = intent.getStringExtra("Gender");
+        faceBookUrl = intent.getStringExtra("FbUrl");
+        //imageUrl = intent.getStringExtra("PictureUrl");
+        String imageUrlLarge="https://graph.facebook.com/"+mId+"/picture?width=1000";
+        Picasso.with(this).load(imageUrlLarge).resize(1000,1000).centerCrop().into(profileImageView);
+        collapsingToolbarLayout.setTitle(mName);
+
+        //Update activity via local db when opened from main
+        if(mName==null){
+            UserInfo me=new UserInfo();
+                   me= myDB.getMe(mId);
+            homeContactEditText.setText(me.getMobile());
+            homeEmailEditText.setText(me.getEmail());
+            homeAddressEditText.setText(me.getAddress());
+            workAddressEditText.setText(me.getDob());
+            professionEditText.setText(me.getProfession());
+            skillSetEditText.setText(me.getSkillset());
+            genderEditText.setText(me.getGender());
+            fbUrlEditText.setText(me.getLink());
+        }
+
+        setEditProfile();
+
         mBloodGroupSpinner = (Spinner) findViewById(R.id.bloodGroup);
 
         setupSpinner();
@@ -91,7 +124,8 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 updateProfile();
-                users userItem = new users(mId,mName,mGender,homeAddress,mBloodGroup,homeContact,workAddress,homeEmail,mProfession,mSkillSet,faceBookUrl);
+                users userItem = new users(mId,mName,mGender,homeAddress,
+                        mBloodGroup,homeContact,workAddress,homeEmail,mProfession,mSkillSet,faceBookUrl);
                 pushToTable(userItem);
                 Intent intent = new Intent(EditProfileActivity.this,ProfileActivity.class);
                 intent.putExtra("id",mId);
@@ -107,9 +141,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 intent.putExtra("fburl",faceBookUrl);
                 startActivity(intent);
                 finish();
-
-
-
             }
         });
 
@@ -170,15 +201,6 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void updateProfile(){
-        EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
-        TextView genderEditText = (TextView) findViewById(R.id.genderEditText);
-        EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
-        TextView fbUrlEditText = (TextView) findViewById(R.id.fbUrl);
-        EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
-        EditText workAddressEditText = (EditText) findViewById(R.id.dateOfBirth);
-        EditText professionEditText = (EditText) findViewById(R.id.profession);
-        EditText skillSetEditText = (EditText) findViewById(R.id.skillSet);
-
 
         homeContact = homeContactEditText.getText().toString();
         homeEmail = homeEmailEditText.getText().toString();
@@ -187,21 +209,23 @@ public class EditProfileActivity extends AppCompatActivity {
         mProfession = professionEditText.getText().toString();
         mSkillSet = skillSetEditText.getText().toString();
 
+        UserInfo me= new UserInfo();
+          me= myDB.getMe(mId);
+        me.setMobile(homeContact);
+        me.setEmail(homeEmail);
+        me.setAddress(homeAddress);
+        me.setDob(workAddress);
+        me.setProfession(mProfession);
+        me.setSkillset(mSkillSet);
+        myDB.editMe(me);
 
     }
 
     private void setEditProfile(){
-        EditText homeContactEditText = (EditText) findViewById(R.id.homeContactNumber);
-        TextView genderEditText = (TextView) findViewById(R.id.genderEditText);
-        EditText homeEmailEditText = (EditText) findViewById(R.id.homeEmail);
-        TextView fbUrlEditText = (TextView) findViewById(R.id.fbUrl);
-        EditText homeAddressEditText = (EditText) findViewById(R.id.homeAddress);
-        EditText workAddressEditText = (EditText) findViewById(R.id.dateOfBirth);
 
         fbUrlEditText.setText(faceBookUrl);
         homeEmailEditText.setText(homeEmail);
         genderEditText.setText(mGender);
-
 
     }
     private void pushToTable(users usersItem){
@@ -220,6 +244,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 try {
                     final users entity = mToDoTable.insert(item).get();
                 } catch (final Exception e) {
+                    Log.e("EEEEEEEEEEEEEEEEEE",e.getMessage());
                     createAndShowDialogFromTask(e, "Error");
                 }
                 return null;
