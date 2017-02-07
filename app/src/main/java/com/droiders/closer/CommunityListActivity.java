@@ -16,7 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.droiders.closer.Users.communities;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+
 import static com.droiders.closer.R.id.communityName;
 
 public class CommunityListActivity extends AppCompatActivity {
+
 
     ArrayList<String> communityNames=new ArrayList<String>();
 

@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
 
+
 public class EditProfileActivity extends AppCompatActivity {
     private Spinner mBloodGroupSpinner;
     String  mId,imageUrl,mGender,mName ,homeContact  , homeEmail , faceBookUrl , homeAddress , workAddress , mBloodGroup,mProfession,mSkillSet;
