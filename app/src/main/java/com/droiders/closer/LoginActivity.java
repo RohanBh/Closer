@@ -2,16 +2,16 @@ package com.droiders.closer;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.droiders.closer.Users.UserInfo;
+import com.droiders.closer.Users.users;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -23,19 +23,31 @@ import com.facebook.login.widget.LoginButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceException;
+import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
 
     /**
      * Mobile Service Client reference
      */
-    private MobileServiceClient mClient;
+
 
     //UserInfo object person stores details of logged in user
     UserInfo userInfo;
 
+    private MobileServiceClient mClient;
+    private MobileServiceTable<users> mToDoTable;
+    private String mId;
     //Button to login in
     private LoginButton loginButton;
 
@@ -49,7 +61,25 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        try {
+            mClient = new MobileServiceClient(
+                    "https://droidersapp.azurewebsites.net",
+                    this);
+            mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
+                @Override
+                public OkHttpClient createOkHttpClient() {
+                    OkHttpClient client = new OkHttpClient();
+                    client.setReadTimeout(20, TimeUnit.SECONDS);
+                    client.setWriteTimeout(20, TimeUnit.SECONDS);
+                    return client;
+                }
+            });
+            createTable();
+        } catch (MalformedURLException e) {
+            createAndShowDialog(new Exception("There was an error creating the Mobile Service. Verify the URL"), "Error");
+        } catch (Exception e) {
+            createAndShowDialog(e, "Error");
+        }
 
         //Log in
         //============================================================
@@ -74,17 +104,8 @@ public class LoginActivity extends AppCompatActivity {
                                 // Application code
                                 Gson gson = new GsonBuilder().create();
                                 userInfo= gson.fromJson(object.toString(),UserInfo.class);
-                                Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
-                                i.putExtra("id",userInfo.getId());
-                                i.putExtra("Name",userInfo.getName());
-                                i.putExtra("Email",userInfo.getEmail());
-                                i.putExtra("Gender",userInfo.getGender());
-                                i.putExtra("FbUrl",userInfo.getLink());
-                                i.putExtra("UserId",userInfo.getId());
-                                i.putExtra("PictureUrl",userInfo.getPicture().getData().getUrl());
-
-                                startActivity(i);
-                                finish();
+                                mId=userInfo.getId();
+                                pullFromTable(userInfo);
                             }
                         });
                 Bundle parameters = new Bundle();
@@ -111,6 +132,70 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+    private boolean isUser=false;
+    private void createTable(){
+        // Get the Mobile Service Table instance to use
+        mToDoTable = mClient.getTable(users.class);
+    }
+    private void pullFromTable(UserInfo userInfo) {
+        final UserInfo temp = userInfo;
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    final List<users> results = refreshItemsFromMobileServiceTable();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (users item : results) {
+                                isUser=true;
+                            }
+                            if(isUser){
+                                Intent i =new Intent(LoginActivity.this,MainActivity.class);
+                                startActivity(i);
+                                finish();
+                            }else{
+                            Intent i=new Intent(LoginActivity.this,EditProfileActivity.class);
+                            i.putExtra("id",temp.getId());
+                            i.putExtra("Name",temp.getName());
+                            i.putExtra("Email",temp.getEmail());
+                            i.putExtra("Gender",temp.getGender());
+                            i.putExtra("FbUrl",temp.getLink());
+                            i.putExtra("UserId",temp.getId());
+                            i.putExtra("PictureUrl",temp.getPicture().getData().getUrl());
+                            startActivity(i);
+                            finish();}
+                        }
+                    });
+                } catch (final Exception e){
+                    createAndShowDialogFromTask(e, "Error");
+                }
+                return null;
+            }
+        };
+        runAsyncTask(task);
+    }
+    private List<users> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException, MobileServiceException {
+        return mToDoTable.where().field("id").eq(mId).execute().get();
+    }
+    private void createAndShowDialogFromTask(final Exception exception, String title) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowDialog(exception, "Error");
+            }
+        });
+    }
+
+
+    private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            return task.execute();
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

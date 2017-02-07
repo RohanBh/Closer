@@ -18,13 +18,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.droiders.closer.Users.UserInfo;
 import com.droiders.closer.Users.users;
 import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
 import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.squareup.okhttp.OkHttpClient;
+
+import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -83,8 +90,8 @@ public class MainActivity extends AppCompatActivity
                         return client;
                     }
                 });
-                createTable();
-                pullFromTable();
+                //createTable();
+                //pullFromTable();
 
                 //Authenticate User and Sign in via fb
                 //authenticate();
@@ -232,7 +239,26 @@ String top="";
         int id = item.getItemId();
 
         if (id == R.id.viewAccount) {
-            gotoActivity(ProfileActivity.class);
+            GraphRequest request = GraphRequest.newMeRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(
+                                JSONObject object,
+                                GraphResponse response) {
+                            // Application code
+                            Gson gson = new GsonBuilder().create();
+                            UserInfo userInfo= gson.fromJson(object.toString(),UserInfo.class);
+                            Intent i = new Intent(MainActivity.this,ProfileActivity.class);
+                            i.putExtra("id", userInfo.getId());
+                            startActivity(i);
+                            }
+                    });
+            Bundle parameters = new Bundle();
+            //field values
+            parameters.putString("fields", "id");
+            request.setParameters(parameters);
+            request.executeAsync();
         } else if (id == R.id.viewCommunities) {
             gotoActivity(CommunityListActivity.class);
         } else if (id == R.id.createCommunity) {

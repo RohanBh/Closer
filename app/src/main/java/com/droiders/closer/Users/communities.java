@@ -3,16 +3,16 @@ package com.droiders.closer.Users;
 public class communities {
     private String id;
     private String name;
-    private String desc;
+    private String description;
 
     public communities() {
 
     }
 
-    public communities(String id, String name, String desc) {
+    public communities(String id, String name, String description) {
         this.id = id;
         this.name = name;
-        this.desc=desc;
+        this.description = description;
     }
 
     public String toString() {
@@ -35,12 +35,12 @@ public class communities {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

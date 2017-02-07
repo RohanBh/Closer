@@ -223,8 +223,6 @@ private String mId;
          dateOfBirthTextView = (TextView) findViewById(R.id.dateOfBirthTextView);
           professionTextView = (TextView) findViewById(R.id.professionTextView);
           skillTextView = (TextView) findViewById(R.id.skillTextView);
-
-
     }
 
 }
