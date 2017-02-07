@@ -189,8 +189,6 @@ private String mId;
             }
         });
     }
-
-
     private void createAndShowDialog(Exception exception, String title) {
         Throwable ex = exception;
         if(exception.getCause() != null){
@@ -198,8 +196,6 @@ private String mId;
         }
         createAndShowDialog(ex.getMessage(), title);
     }
-
-    //Create and Show dialog box
     private void createAndShowDialog(final String message, final String title) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -214,6 +210,7 @@ private String mId;
             return task.execute();
         }
     }
+
     private void setupProfile(){
         contactTextView = (TextView) findViewById(R.id.contactTextView);
         gender = (TextView) findViewById(R.id.gender);
